@@ -1,65 +1,80 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import List from '../components/List.js'
+import Form from '../components/Form.js'
+import React, { useState } from 'react';
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+const getNetworks = async () => {
+  const res = await fetch(`http://localhost:3000/api/networks`)
+  const data = await res.json()
+  return data.networks;
+}
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+const getCurrent = async () => {
+  const res = await fetch(`http://localhost:3000/api/current`)
+  const data = await res.json()
+  return data.currentConnections[0];
+}
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+export async function getStaticProps(context) {
+  const networks = await getNetworks();
+  const current = await getCurrent();
+  const props =  {};
+  if (networks) {
+    props.networks= networks;
+  }
+  if (current) {
+    props.current= current;
+  }
+  return {props};
+}
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+const connect = async ({ password, ssid }) => {
+  const response = await fetch(`//localhost:3000/api/connect`, {
+    method: 'POST',
+    body: JSON.stringify({
+      password,
+      ssid
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  })
+  if (response.status >= 200 && response.status <= 299) {
+    const jsonResponse = await response.json();
+    console.log("SUCCESS", { jsonResponse });
+    return true;
+  } else {
+    // Handle errors
+    console.log("ERROR", { status: response.status, statusText: response.statusText });
+    return false;
+  }
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+}
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+export default function Home({ networks, current }) {
+  const [selected, setSelected] = useState(false);
+  const [error, setError] = useState(false);
+  const [currentConnection, setCurrentConnection] = useState(current);
+  const handleCanel = () => {
+    setSelected(false)
+    setError(false)
+  }
+  const handleSubmit = async ({ password, ssid }) => {
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+    const result = await connect({ password, ssid })
+    if (result) {
+      setSelected(false)
+      const newCurrent = await getCurrent();
+      setCurrentConnection(newCurrent);
+    } else {
+      setError(true)
+    }
+  }
+console.log("NETWORKS", networks[0]);
+  return <>
+    {currentConnection && <p>CONNECTED TO {currentConnection.ssid}</p>}
+    {!currentConnection && <p>Not Connected</p>}
+    { !selected &&  networks && <List networks={networks} onSelect={setSelected} />}
+    {selected && < Form error={error} network={selected} onCancel={handleCanel} onSubmit={handleSubmit} />}
+  </>
 }
