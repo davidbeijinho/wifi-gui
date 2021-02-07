@@ -5,12 +5,14 @@ import React, { useState } from 'react';
 const host = process.env.HOST;
 console.log({host})
 const getNetworks = async () => {
+  console.log("ON GET NETWORKS", {host, envHOST: process.env.HOST})
   const res = await fetch(`http://${host}:3000/api/networks`)
   const data = await res.json()
   return data.networks;
 }
 
 const getCurrent = async () => {
+  console.log("ON GET CURRENT", {host, envHOST: process.env.HOST})
   const res = await fetch(`http://${host}:3000/api/current`)
   const data = await res.json()
   return data.currentConnections[0];
@@ -30,7 +32,8 @@ export async function getStaticProps(context) {
 }
 
 const connect = async ({ password, ssid }) => {
-  const response = await fetch(`http://${host}:3000/api/connect`, {
+  console.log("ON CONNECT", {host, envHOST: process.env.HOST})
+  const response = await fetch(`http://${host || '10.0.0.1'}:3000/api/connect`, {
     method: 'POST',
     body: JSON.stringify({
       password,
