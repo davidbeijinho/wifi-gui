@@ -28,7 +28,7 @@ export async function getStaticProps(context) {
 }
 
 const connect = async ({ password, ssid }) => {
-  const response = await fetch(`//localhost:3000/api/connect`, {
+  const response = await fetch(`http://localhost:3000/api/connect`, {
     method: 'POST',
     body: JSON.stringify({
       password,
