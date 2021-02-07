@@ -2,14 +2,16 @@ import List from '../components/List.js'
 import Form from '../components/Form.js'
 import React, { useState } from 'react';
 
+const host = process.env.HOST;
+
 const getNetworks = async () => {
-  const res = await fetch(`http://localhost:3000/api/networks`)
+  const res = await fetch(`http://${host}:3000/api/networks`)
   const data = await res.json()
   return data.networks;
 }
 
 const getCurrent = async () => {
-  const res = await fetch(`http://localhost:3000/api/current`)
+  const res = await fetch(`http://${host}:3000/api/current`)
   const data = await res.json()
   return data.currentConnections[0];
 }
@@ -28,7 +30,7 @@ export async function getStaticProps(context) {
 }
 
 const connect = async ({ password, ssid }) => {
-  const response = await fetch(`http://localhost:3000/api/connect`, {
+  const response = await fetch(`http://${host}:3000/api/connect`, {
     method: 'POST',
     body: JSON.stringify({
       password,
