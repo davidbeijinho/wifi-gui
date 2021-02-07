@@ -1,8 +1,8 @@
 module.exports = {
   apps: [{
-    name: "app",
+    name: "wifi-gui",
     script: "npm",
-    args: "start",
+    args: "dev",
     env: {
       NODE_ENV: "development",
     },
