@@ -3,7 +3,7 @@ import Form from '../components/Form.js'
 import React, { useState } from 'react';
 
 const host = process.env.HOST;
-
+console.log({host})
 const getNetworks = async () => {
   const res = await fetch(`http://${host}:3000/api/networks`)
   const data = await res.json()

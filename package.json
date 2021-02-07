@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "next": "10.0.5",
     "node-wifi": "^2.0.14",
     "react": "17.0.1",
